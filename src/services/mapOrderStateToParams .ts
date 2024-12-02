@@ -1,3 +1,4 @@
+// Importing necessary interfaces
 import { IOrderState } from "@interfaces/bll/order.interface";
 import { IParamPreviewOrder } from "@interfaces/order/paramsPreview.interface";
 
@@ -12,24 +13,35 @@ const fetchDesignLink = (currentId: string): Promise<string> => {
           name.includes(`${currentId}/designUploads`)
         );
 
+        console.log("Filtered Names:", filteredNames);
+
         return filteredNames.length > 0
           ? `https://storage.googleapis.com/ceriga-storage-bucket/${filteredNames[0]}`
           : '';
       } else {
+        console.error('Items is not an array:', responseData.items);
         return ''; // Return an empty string if items is not an array
       }
     })
-    .catch(() => {
-      return ''; // Return an empty string on fetch error
+    .catch((error) => {
+      console.error('Error fetching data:', error);
+      return ''; // Return an empty string if there's a fetch error
     });
 };
 
 // Function to map order state to parameters
-export const mapOrderStateToParams = async (state: IOrderState): Promise<IParamPreviewOrder[]> => {
+export const mapOrderStateToParams = (state: IOrderState) => {
   const currentId = state.draftId ?? state._id;
-  const designLink = await fetchDesignLink(currentId); // Resolve the design link before usage
+  console.log(currentId);
 
-  // Build the structure inline with the fetched design link
+  // Fetch the design link
+  let designLink = '';
+  fetchDesignLink(currentId).then((link) => {
+    designLink = link;
+    console.log("DesignLink:", designLink);
+  });
+
+  // Define the data structure to be returned
   const data: IParamPreviewOrder[] = [
     {
       title: "Fabrics",
@@ -87,7 +99,7 @@ export const mapOrderStateToParams = async (state: IOrderState): Promise<IParamP
           title: "Design",
           isLink: true,
           titleStyle: "bold",
-          link: designLink, // Inline resolved design link
+          link: designLink, // Use the fetched design link here
         },
         { title: "Extra Details", value: state.stitching.description || "" },
         { title: "Stitching", value: state.stitching.type || "" },
@@ -123,5 +135,6 @@ export const mapOrderStateToParams = async (state: IOrderState): Promise<IParamP
     },
   ];
 
-  return data; // Return the completed structure
+  // Return the data structure
+  return data;
 };
