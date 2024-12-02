@@ -9,16 +9,16 @@ export const mapOrderStateToParams = (state: IOrderState) => {
   const fetchData = async () => {
     try {
       const response = await fetch('https://storage.googleapis.com/storage/v1/b/ceriga-storage-bucket/o/');
-      const data = await response.json();
+      const responseData = await response.json(); // Renamed to responseData
 
-      const names = data.items.map(item => item.name);
+      const names = responseData.items.map(item => item.name);
       const filteredNames = names.filter(name => name.includes(`${currentId}/designUploads`));
       console.log("Filtered Names:", filteredNames);
 
       // Assuming you want to use the first matching name
       const designLink = filteredNames.length > 0 ? `https://storage.googleapis.com/ceriga-storage-bucket/${filteredNames[0]}` : '';
 
-      const data: IParamPreviewOrder[] = [
+      const orderData: IParamPreviewOrder[] = [ // Renamed to orderData
         {
           title: "Fabrics",
           paramsType: "list",
@@ -111,10 +111,10 @@ export const mapOrderStateToParams = (state: IOrderState) => {
         },
       ];
 
-      return data;
+      return orderData; // Returning the updated data
     } catch (error) {
       console.error('Error fetching data:', error);
-      return [];
+      return []; // Returning an empty array in case of error
     }
   };
 
