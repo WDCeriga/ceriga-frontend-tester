@@ -18,6 +18,7 @@ export const mapOrderStateToParams = (state: IOrderState) => {
       // Assuming you want to use the first matching name
       const designLink = filteredNames.length > 0 ? `https://storage.googleapis.com/ceriga-storage-bucket/${filteredNames[0]}` : '';
 
+      console..log(designLink);
       const orderData: IParamPreviewOrder[] = [ // Renamed to orderData
         {
           title: "Fabrics",
