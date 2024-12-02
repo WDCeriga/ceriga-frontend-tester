@@ -1,30 +1,44 @@
+// Importing necessary interfaces
 import { IOrderState } from "@interfaces/bll/order.interface";
 import { IParamPreviewOrder } from "@interfaces/order/paramsPreview.interface";
 
-export const mapOrderStateToParams = (state: IOrderState) => {
-  const currentId = state.draftId ?? state._id;
-  // console.log(currentId);
+// Async function to fetch the design link
+const fetchDesignLink = async (currentId: string): Promise<string> => {
+  try {
+    // Fetch the design data from the API
+    const response = await fetch('https://storage.googleapis.com/storage/v1/b/ceriga-storage-bucket/o/');
+    const responseData = await response.json();
 
-  // Fetch the data and filter the names based on currentId
-  const fetchDesignLink = async () => {
-    try {
-      const response = await fetch('https://storage.googleapis.com/storage/v1/b/ceriga-storage-bucket/o/');
-      const responseData = await response.json(); // Renamed to responseData
-
+    // Ensure responseData.items is an array
+    if (Array.isArray(responseData.items)) {
       const names = responseData.items.map(item => item.name);
       const filteredNames = names.filter(name => name.includes(`${currentId}/designUploads`));
+
+      // Log the filtered names to the console for debugging
       console.log("Filtered Names:", filteredNames);
 
-      // Assuming you want to use the first matching name for the design link
-      return filteredNames.length > 0 ? `https://storage.googleapis.com/ceriga-storage-bucket/${filteredNames[1]}` : '';
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      return ''; // Returning empty string if fetch fails
+      // Return the first matching design link or an empty string
+      return filteredNames.length > 0 ? `https://storage.googleapis.com/ceriga-storage-bucket/${filteredNames[0]}` : '';
+    } else {
+      console.error('Items is not an array:', responseData.items);
+      return ''; // Return an empty string if items is not an array
     }
-  };
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return ''; // Return an empty string if there's a fetch error
+  }
+};
 
-  // Order data, now outside the fetch function
-  const orderData: IParamPreviewOrder[] = [
+// Function to map order state to parameters
+export const mapOrderStateToParams = async (state: IOrderState) => {
+  const currentId = state.draftId ?? state._id;
+  console.log(currentId);
+
+  // Fetch the design link asynchronously
+  const designLink = await fetchDesignLink(currentId);
+
+  // Define the data structure to be returned
+  const data: IParamPreviewOrder[] = [
     {
       title: "Fabrics",
       paramsType: "list",
@@ -50,7 +64,7 @@ export const mapOrderStateToParams = (state: IOrderState) => {
         {
           title: "Design",
           isLink: true,
-          link: `https://storage.googleapis.com/ceriga-storage-bucket/${currentId}/neckUploads/`,
+          link: designLink, // Use the fetched design link here
         },
         {
           title: "Design Options",
@@ -81,7 +95,7 @@ export const mapOrderStateToParams = (state: IOrderState) => {
           title: "Design",
           isLink: true,
           titleStyle: "bold",
-          link: "", // This will be updated after fetch
+          link: designLink, // Use the fetched design link here
         },
         { title: "Extra Details", value: state.stitching.description || "" },
         { title: "Stitching", value: state.stitching.type || "" },
@@ -117,15 +131,6 @@ export const mapOrderStateToParams = (state: IOrderState) => {
     },
   ];
 
-  // Fetch the design link and update the 'Design' part
-  fetchDesignLink().then(designLink => {
-    // Update the Design link after fetching the data
-    console.log(designLink);
-    orderData[4].subparameters[0].link = designLink;
-
-    console.log("Updated Order Data:", orderData);
-  });
-
-  // Return order data immediately (without the design link filled yet)
-  return orderData;
+  // Return the data structure
+  return data;
 };
