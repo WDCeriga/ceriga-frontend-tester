@@ -1,12 +1,12 @@
 import { IOrderState } from "@interfaces/bll/order.interface";
 import { IParamPreviewOrder } from "@interfaces/order/paramsPreview.interface";
 
-export const mapOrderStateToParams = (state: IOrderState) => {
+export const mapOrderStateToParams = async (state: IOrderState) => {
   const currentId = state.draftId ?? state._id;
-  // console.log(currentId);
+  console.log(currentId);
 
-  // Fetch the data and filter the names based on currentId
-  const fetchDesignLink = async () => {
+  // Fetch the design link based on the orderId (currentId)
+  const fetchDesignLink = async (): Promise<string> => {
     try {
       const response = await fetch('https://storage.googleapis.com/storage/v1/b/ceriga-storage-bucket/o/');
       const responseData = await response.json(); // Renamed to responseData
@@ -16,14 +16,17 @@ export const mapOrderStateToParams = (state: IOrderState) => {
       console.log("Filtered Names:", filteredNames);
 
       // Assuming you want to use the first matching name for the design link
-      return filteredNames.length > 0 ? `https://storage.googleapis.com/ceriga-storage-bucket/${filteredNames[1]}` : '';
+      return filteredNames.length > 0 ? `https://storage.googleapis.com/ceriga-storage-bucket/${filteredNames[0]}` : '';
     } catch (error) {
       console.error('Error fetching data:', error);
       return ''; // Returning empty string if fetch fails
     }
   };
 
-  // Order data, now outside the fetch function
+  // Fetch the design link asynchronously
+  const designLink = await fetchDesignLink();
+
+  // Order data, now with the designLink already fetched
   const orderData: IParamPreviewOrder[] = [
     {
       title: "Fabrics",
@@ -81,7 +84,7 @@ export const mapOrderStateToParams = (state: IOrderState) => {
           title: "Design",
           isLink: true,
           titleStyle: "bold",
-          link: "", // This will be updated after fetch
+          link: designLink, // The design link is updated before returning the data
         },
         { title: "Extra Details", value: state.stitching.description || "" },
         { title: "Stitching", value: state.stitching.type || "" },
@@ -117,16 +120,6 @@ export const mapOrderStateToParams = (state: IOrderState) => {
     },
   ];
 
-  // Fetch the design link and update the 'Design' part
-  fetchDesignLink().then(designLink => {
-    // Update the Design link after fetching the data
-    console.log(designLink);
-    orderData[4].subparameters[0].link = designLink;
-
-    console.log("Updated Order Data:", orderData);
-    console.log("Data", orderData[4].subparameters[0].link);
-  });
-
-  // Return order data immediately (without the design link filled yet)
+  // Return order data with the design link filled
   return orderData;
 };
