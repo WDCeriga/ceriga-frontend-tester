@@ -12,8 +12,8 @@ export const mapOrderStateToParams = async (state: IOrderState) => {
     const response = await fetch('https://storage.googleapis.com/storage/v1/b/ceriga-storage-bucket/o/');
     const data = await response.json();
 
-    // Ensure 'data' is available before trying to access 'items'
-    if (data.items) {
+    // Ensure 'data' and 'data.items' are valid and that 'data.items' is an array
+    if (Array.isArray(data.items)) {
       const names = data.items.map((item) => item.name);
       const filteredNames = names.filter((name) =>
         name.includes(`${currentId}/designUploads`)
@@ -25,7 +25,7 @@ export const mapOrderStateToParams = async (state: IOrderState) => {
         designLink = `https://storage.googleapis.com/ceriga-storage-bucket/${filteredNames[0]}`;
       }
     } else {
-      console.error('No items found in the response.');
+      console.error('No items found or invalid items structure in the response.');
     }
 
     // Now, you can use the updated designLink here because we are waiting for the fetch to complete
