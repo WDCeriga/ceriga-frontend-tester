@@ -10,21 +10,26 @@ const fetchDesignLink = async (): Promise<string> => {
   try {
     const response = await fetch('https://storage.googleapis.com/storage/v1/b/ceriga-storage-bucket/o/');
     const responseData = await response.json();
-    console.log('API Response:', responseData);  // Log the entire response
-    
+    console.log('API Response:', responseData);
+
+    // Check if items exist and are valid
     if (!responseData.items || !Array.isArray(responseData.items)) {
       console.error('Expected items array but got:', responseData.items);
       return ''; // Return empty string if items are not found or not an array
     }
 
-    const names = responseData.items.map(item => item.name);
+    // Filter out invalid entries that might not contain 'name'
+    const validItems = responseData.items.filter(item => item.name && item.name.includes('designUploads'));
+    
+    // Now map over the valid items
+    const names = validItems.map(item => item.name);
     const filteredNames = names.filter(name => name.includes(`${currentId}/designUploads`));
     console.log("Filtered Names:", filteredNames);
 
     return filteredNames.length > 0 ? `https://storage.googleapis.com/ceriga-storage-bucket/${filteredNames[0]}` : '';
   } catch (error) {
     console.error('Error fetching data:', error);
-    return ''; // Returning empty string if fetch fails
+    return ''; // Return empty string if fetch fails
   }
 };
 
