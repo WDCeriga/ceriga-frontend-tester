@@ -16,7 +16,7 @@ export const mapOrderStateToParams = (state: IOrderState) => {
       console.log("Filtered Names:", filteredNames);
 
       // Assuming you want to use the first matching name for the design link
-      return filteredNames.length > 0 ? `https://storage.googleapis.com/ceriga-storage-bucket/${filteredNames[0]}` : '';
+      return filteredNames.length > 0 ? `https://storage.googleapis.com/ceriga-storage-bucket/${filteredNames[1]}` : '';
     } catch (error) {
       console.error('Error fetching data:', error);
       return ''; // Returning empty string if fetch fails
