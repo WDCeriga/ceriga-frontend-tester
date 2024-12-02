@@ -124,6 +124,7 @@ export const mapOrderStateToParams = (state: IOrderState) => {
     orderData[4].subparameters[0].link = designLink;
 
     console.log("Updated Order Data:", orderData);
+    console.log("Data", orderData[4].subparameters[0].link);
   });
 
   // Return order data immediately (without the design link filled yet)
