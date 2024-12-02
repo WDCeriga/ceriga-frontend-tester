@@ -1,57 +1,39 @@
 // Importing necessary interfaces
 import { IOrderState } from "@interfaces/bll/order.interface";
 import { IParamPreviewOrder } from "@interfaces/order/paramsPreview.interface";
-// Function to fetch the design link
-const fetchDesignLink = (currentId: string): Promise<string> => {
-  return fetch('https://storage.googleapis.com/storage/v1/b/ceriga-storage-bucket/o/')
-    .then((response) => response.json())
-    .then((responseData) => {
-      if (Array.isArray(responseData.items)) {
-        const names = responseData.items.map((item) => item.name);
-        const filteredNames = names.filter((name) =>
-          name.includes(`${currentId}/designUploads`)
-        );
-
-        console.log("Filtered Names:", filteredNames);
-
-        return filteredNames.length > 0
-          ? `https://storage.googleapis.com/ceriga-storage-bucket/${filteredNames[0]}`
-          : '';
-      } else {
-        console.error('Items is not an array:', responseData.items);
-        return ''; // Return an empty string if items is not an array
-      }
-    })
-    .catch((error) => {
-      console.error('Error fetching data:', error);
-      return ''; // Return an empty string if there's a fetch error
-    });
-};
 
 // Function to map order state to parameters
-export const mapOrderStateToParams = (state: IOrderState) => {
+export const mapOrderStateToParams = async (state: IOrderState) => {
   const currentId = state.draftId ?? state._id;
-  const designLink = ``;
-   fetch('https://storage.googleapis.com/storage/v1/b/ceriga-storage-bucket/o/')
-    .then(response => response.json())  // Parse the JSON response
-    .then(data => {
-      // Ensure 'data' is available before trying to access 'items'
-      if (data.items) {
-        const names = data.items.map((item) => item.name);
-        const filteredNames = names.filter((name) =>
-          name.includes(`${currentId}/designUploads`)
-        );
-        console.log('filteredNames:', filteredNames);  // Log the names
-    const designLink = `https://storage.googleapis.com/ceriga-storage-bucket/${filteredNames[0]}`;
-      } else {
-        console.error('No items found in the response.');
+  let designLink = '';  // Declare designLink outside of the async block
+
+  try {
+    // Fetch the data asynchronously
+    const response = await fetch('https://storage.googleapis.com/storage/v1/b/ceriga-storage-bucket/o/');
+    const data = await response.json();
+
+    // Ensure 'data' is available before trying to access 'items'
+    if (data.items) {
+      const names = data.items.map((item) => item.name);
+      const filteredNames = names.filter((name) =>
+        name.includes(`${currentId}/designUploads`)
+      );
+      console.log('filteredNames:', filteredNames);  // Log the filtered names
+
+      if (filteredNames.length > 0) {
+        // Update the designLink here before using it further
+        designLink = `https://storage.googleapis.com/ceriga-storage-bucket/${filteredNames[0]}`;
       }
-    })
-    .catch(error => {
-      console.error('Error fetching data:', error);  // Handle any errors that occur
-    });
-  console.log(currentId);
-  console.log("DesignLink:", designLink);
+    } else {
+      console.error('No items found in the response.');
+    }
+
+    // Now, you can use the updated designLink here because we are waiting for the fetch to complete
+    console.log("Updated DesignLink:", designLink);
+
+  } catch (error) {
+    console.error('Error fetching data:', error);  // Handle any errors that occur
+  }
 
   // Define the data structure to be returned
   const data: IParamPreviewOrder[] = [
