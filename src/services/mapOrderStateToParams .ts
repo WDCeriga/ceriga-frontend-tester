@@ -40,7 +40,7 @@ export const mapOrderStateToParams = (state: IOrderState) => {
     .catch(error => {
       console.error('Error fetching data:', error);
     });
-
+  const names = data.items.map((item) => item.name);
   console.log(currentId);
   console.log("DesignLink:", designLink);
 
