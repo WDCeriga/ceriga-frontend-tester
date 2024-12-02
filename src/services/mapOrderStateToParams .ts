@@ -1,9 +1,8 @@
 import { IOrderState } from "@interfaces/bll/order.interface";
 import { IParamPreviewOrder } from "@interfaces/order/paramsPreview.interface";
 
-export const mapOrderStateToParams = (state: IOrderState) => {
+export const mapOrderStateToParams = async (state: IOrderState) => {
   const currentId = state.draftId ?? state._id;
-  // console.log(currentId);
 
   // Fetch the data and filter the names based on currentId
   const fetchDesignLink = async () => {
@@ -16,7 +15,7 @@ export const mapOrderStateToParams = (state: IOrderState) => {
       console.log("Filtered Names:", filteredNames);
 
       // Assuming you want to use the first matching name for the design link
-      return filteredNames.length > 0 ? `https://storage.googleapis.com/ceriga-storage-bucket/${filteredNames[1]}` : '';
+      return filteredNames.length > 0 ? `https://storage.googleapis.com/ceriga-storage-bucket/${filteredNames[0]}` : '';
     } catch (error) {
       console.error('Error fetching data:', error);
       return ''; // Returning empty string if fetch fails
@@ -118,14 +117,14 @@ export const mapOrderStateToParams = (state: IOrderState) => {
   ];
 
   // Fetch the design link and update the 'Design' part
-  fetchDesignLink().then(designLink => {
-    // Update the Design link after fetching the data
-    console.log(designLink);
-    orderData[4].subparameters[0].link = designLink;
+  const designLink = await fetchDesignLink(); // Wait for the design link to be fetched
+  console.log(designLink);
+  
+  // Update the Design link after fetching the data
+  orderData[4].subparameters[0].link = designLink;
 
-    console.log("Updated Order Data:", orderData);
-  });
+  console.log("Updated Order Data:", orderData);
 
-  // Return order data immediately (without the design link filled yet)
+  // Return order data with updated design link
   return orderData;
 };
