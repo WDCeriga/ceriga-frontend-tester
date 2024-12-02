@@ -32,9 +32,15 @@ const fetchDesignLink = (currentId: string): Promise<string> => {
 export const mapOrderStateToParams = (state: IOrderState) => {
   const currentId = state.draftId ?? state._id;
   const designLink = `https://storage.googleapis.com/ceriga-storage-bucket/${currentId}`;
-  const o = fetch('https://storage.googleapis.com/storage/v1/b/ceriga-storage-bucket/o/');
+  fetch('https://storage.googleapis.com/storage/v1/b/ceriga-storage-bucket/o/')
+    .then(response => response.json()) // assuming the response is JSON
+    .then(data => {
+      console.log(data);
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);
+    });
 
-console.log(o)
   console.log(currentId);
   console.log("DesignLink:", designLink);
 
