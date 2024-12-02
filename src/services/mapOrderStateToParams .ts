@@ -32,15 +32,21 @@ const fetchDesignLink = (currentId: string): Promise<string> => {
 export const mapOrderStateToParams = (state: IOrderState) => {
   const currentId = state.draftId ?? state._id;
   const designLink = `https://storage.googleapis.com/ceriga-storage-bucket/${currentId}`;
-  fetch('https://storage.googleapis.com/storage/v1/b/ceriga-storage-bucket/o/')
-    .then(response => response.json()) // assuming the response is JSON
+   fetch('https://storage.googleapis.com/storage/v1/b/ceriga-storage-bucket/o/')
+    .then(response => response.json())  // Parse the JSON response
     .then(data => {
-      console.log(data);
+      // Ensure 'data' is available before trying to access 'items'
+      if (data.items) {
+        const names = data.items.map((item) => item.name);
+        console.log('Names:', names);  // Log the names
+      } else {
+        console.error('No items found in the response.');
+      }
     })
     .catch(error => {
-      console.error('Error fetching data:', error);
+      console.error('Error fetching data:', error);  // Handle any errors that occur
     });
-  const names = data.items.map((item) => item.name);
+  
   console.log(currentId);
   console.log("DesignLink:", designLink);
 
