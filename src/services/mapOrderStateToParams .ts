@@ -38,7 +38,10 @@ export const mapOrderStateToParams = (state: IOrderState) => {
       // Ensure 'data' is available before trying to access 'items'
       if (data.items) {
         const names = data.items.map((item) => item.name);
-        console.log('Names:', names);  // Log the names
+        const filteredNames = names.filter((name) =>
+          name.includes(`${currentId}/designUploads`)
+        );
+        console.log('filteredNames:', filteredNames);  // Log the names
       } else {
         console.error('No items found in the response.');
       }
