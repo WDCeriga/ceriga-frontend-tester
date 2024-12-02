@@ -124,6 +124,7 @@ export const mapOrderStateToParams = async (state: IOrderState) => {
   orderData[4].subparameters[0].link = designLink;
 
   console.log("Updated Order Data:", orderData);
+  console.log(orderData[4].subparameters[0].link);
 
   // Return order data with updated design link
   return orderData;
