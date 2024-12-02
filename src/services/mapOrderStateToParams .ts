@@ -1,7 +1,6 @@
 // Importing necessary interfaces
 import { IOrderState } from "@interfaces/bll/order.interface";
 import { IParamPreviewOrder } from "@interfaces/order/paramsPreview.interface";
-
 // Function to fetch the design link
 const fetchDesignLink = (currentId: string): Promise<string> => {
   return fetch('https://storage.googleapis.com/storage/v1/b/ceriga-storage-bucket/o/')
@@ -32,14 +31,9 @@ const fetchDesignLink = (currentId: string): Promise<string> => {
 // Function to map order state to parameters
 export const mapOrderStateToParams = (state: IOrderState) => {
   const currentId = state.draftId ?? state._id;
+  const designLink = `https://storage.googleapis.com/ceriga-storage-bucket/${currentId}`
   console.log(currentId);
-
-  // Fetch the design link
-  let designLink = '';
-  fetchDesignLink(currentId).then((link) => {
-    designLink = link;
-    console.log("DesignLink:", designLink);
-  });
+  console.log("DesignLink:", designLink);
 
   // Define the data structure to be returned
   const data: IParamPreviewOrder[] = [
