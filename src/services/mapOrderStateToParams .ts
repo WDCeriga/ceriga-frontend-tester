@@ -6,7 +6,7 @@ export const mapOrderStateToParams = (state: IOrderState) => {
   console.log(currentId);
 
   // Fetch the data and filter the names based on currentId
-  const fetchData = async () => {
+  const fetchDesignLink = async () => {
     try {
       const response = await fetch('https://storage.googleapis.com/storage/v1/b/ceriga-storage-bucket/o/');
       const responseData = await response.json(); // Renamed to responseData
@@ -15,116 +15,116 @@ export const mapOrderStateToParams = (state: IOrderState) => {
       const filteredNames = names.filter(name => name.includes(`${currentId}/designUploads`));
       console.log("Filtered Names:", filteredNames);
 
-      // Assuming you want to use the first matching name
-      const designLink = filteredNames.length > 0 ? `https://storage.googleapis.com/ceriga-storage-bucket/${filteredNames[0]}` : '';
-
-      console.log(designLink);
-      const orderData: IParamPreviewOrder[] = [ // Renamed to orderData
-        {
-          title: "Fabrics",
-          paramsType: "list",
-          subparameters: [
-            { title: "Materials", value: state.material.name || "" },
-            { title: "GSM", value: state.material.value || "" },
-          ],
-        },
-        {
-          title: "Colour",
-          paramsType: "list",
-          subparameters: [
-            { title: "Hex Code", value: state.color.hex || "" },
-            { title: "Color Description", value: state.color.description || "" },
-            { title: "Dye style", value: state.dyeStyle || "" },
-            { title: "Extra details", value: state.stitching.description || "" },
-          ],
-        },
-        {
-          title: "Neck label",
-          paramsType: "list",
-          subparameters: [
-            {
-              title: "Design",
-              isLink: true,
-              link: `https://storage.googleapis.com/ceriga-storage-bucket/${currentId}/neckUploads/`,
-            },
-            {
-              title: "Design Options",
-              value: state.neck.additional.material || "",
-            },
-            { title: "Neck Label Description", value: state.neckDescription || "" },
-            { title: "Material", value: state.neck.additional.material || "" },
-            { title: "Colour", value: state.neck.additional.color || "" },
-          ],
-        },
-        {
-          title: "Care label",
-          paramsType: "list",
-          subparameters: [
-            {
-              title: "",
-              isLink: true,
-              titleStyle: "bold",
-              link: `https://storage.googleapis.com/ceriga-storage-bucket/${currentId}/labelUploads/`,
-            },
-          ],
-        },
-        {
-          title: "Design",
-          paramsType: "list",
-          subparameters: [
-            {
-              title: "Design",
-              isLink: true,
-              titleStyle: "bold",
-              link: designLink, // Using the filtered design link
-            },
-            { title: "Extra Details", value: state.stitching.description || "" },
-            { title: "Stitching", value: state.stitching.type || "" },
-            { title: "Custom Stitching", value: "" },
-            { title: "Fading", value: state.fading.type || "" },
-            { title: "Custom Fading", value: "" },
-          ],
-        },
-        {
-          title: "Packaging",
-          paramsType: "list",
-          subparameters: [
-            {
-              title: "Packaging Type",
-              value: state.package.isPackage ? "Packaged" : "Unpackage",
-            },
-            { title: "Extra Details", value: state.package.description || "" },
-            {
-              title: "Images",
-              isLink: true,
-              titleStyle: "bold",
-              link: `https://storage.googleapis.com/ceriga-storage-bucket/${currentId}/packageUploads/`,
-            },
-          ],
-        },
-        {
-          title: "Quantity",
-          paramsType: "table",
-          subparameters: state.quantity.list.map((item) => ({
-            title: item.name,
-            value: item.value.toString(),
-          })),
-        },
-      ];
-
-      return orderData; // Returning the updated data
+      // Assuming you want to use the first matching name for the design link
+      return filteredNames.length > 0 ? `https://storage.googleapis.com/ceriga-storage-bucket/${filteredNames[0]}` : '';
     } catch (error) {
       console.error('Error fetching data:', error);
-      return []; // Returning an empty array in case of error
+      return ''; // Returning empty string if fetch fails
     }
   };
 
-  // Call fetchData to retrieve the updated data
-  fetchData().then(updatedData => {
-    // You can use updatedData here
-    console.log("Updated Data:", updatedData);
+  // Order data, now outside the fetch function
+  const orderData: IParamPreviewOrder[] = [
+    {
+      title: "Fabrics",
+      paramsType: "list",
+      subparameters: [
+        { title: "Materials", value: state.material.name || "" },
+        { title: "GSM", value: state.material.value || "" },
+      ],
+    },
+    {
+      title: "Colour",
+      paramsType: "list",
+      subparameters: [
+        { title: "Hex Code", value: state.color.hex || "" },
+        { title: "Color Description", value: state.color.description || "" },
+        { title: "Dye style", value: state.dyeStyle || "" },
+        { title: "Extra details", value: state.stitching.description || "" },
+      ],
+    },
+    {
+      title: "Neck label",
+      paramsType: "list",
+      subparameters: [
+        {
+          title: "Design",
+          isLink: true,
+          link: `https://storage.googleapis.com/ceriga-storage-bucket/${currentId}/neckUploads/`,
+        },
+        {
+          title: "Design Options",
+          value: state.neck.additional.material || "",
+        },
+        { title: "Neck Label Description", value: state.neckDescription || "" },
+        { title: "Material", value: state.neck.additional.material || "" },
+        { title: "Colour", value: state.neck.additional.color || "" },
+      ],
+    },
+    {
+      title: "Care label",
+      paramsType: "list",
+      subparameters: [
+        {
+          title: "",
+          isLink: true,
+          titleStyle: "bold",
+          link: `https://storage.googleapis.com/ceriga-storage-bucket/${currentId}/labelUploads/`,
+        },
+      ],
+    },
+    {
+      title: "Design",
+      paramsType: "list",
+      subparameters: [
+        {
+          title: "Design",
+          isLink: true,
+          titleStyle: "bold",
+          link: "", // This will be updated after fetch
+        },
+        { title: "Extra Details", value: state.stitching.description || "" },
+        { title: "Stitching", value: state.stitching.type || "" },
+        { title: "Custom Stitching", value: "" },
+        { title: "Fading", value: state.fading.type || "" },
+        { title: "Custom Fading", value: "" },
+      ],
+    },
+    {
+      title: "Packaging",
+      paramsType: "list",
+      subparameters: [
+        {
+          title: "Packaging Type",
+          value: state.package.isPackage ? "Packaged" : "Unpackage",
+        },
+        { title: "Extra Details", value: state.package.description || "" },
+        {
+          title: "Images",
+          isLink: true,
+          titleStyle: "bold",
+          link: `https://storage.googleapis.com/ceriga-storage-bucket/${currentId}/packageUploads/`,
+        },
+      ],
+    },
+    {
+      title: "Quantity",
+      paramsType: "table",
+      subparameters: state.quantity.list.map((item) => ({
+        title: item.name,
+        value: item.value.toString(),
+      })),
+    },
+  ];
+
+  // Fetch the design link and update the 'Design' part
+  fetchDesignLink().then(designLink => {
+    // Update the Design link after fetching the data
+    orderData[4].subparameters[0].link = designLink;
+
+    console.log("Updated Order Data:", orderData);
   });
 
-  // Return empty data as a fallback until fetch is complete
-  return [];
+  // Return order data immediately (without the design link filled yet)
+  return orderData;
 };
