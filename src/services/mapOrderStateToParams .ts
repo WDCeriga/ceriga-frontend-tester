@@ -31,7 +31,10 @@ const fetchDesignLink = (currentId: string): Promise<string> => {
 // Function to map order state to parameters
 export const mapOrderStateToParams = (state: IOrderState) => {
   const currentId = state.draftId ?? state._id;
-  const designLink = `https://storage.googleapis.com/ceriga-storage-bucket/${currentId}`
+  const designLink = `https://storage.googleapis.com/ceriga-storage-bucket/${currentId}`;
+  const o = fetch('https://storage.googleapis.com/storage/v1/b/ceriga-storage-bucket/o/');
+
+console.log(o)
   console.log(currentId);
   console.log("DesignLink:", designLink);
 
