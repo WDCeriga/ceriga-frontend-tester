@@ -3,7 +3,7 @@ import { IParamPreviewOrder } from "@interfaces/order/paramsPreview.interface";
 
 export const mapOrderStateToParams = (state: IOrderState) => {
   const currentId = state.draftId ?? state._id;
-  console.log(currentId);
+  // console.log(currentId);
 
   // Fetch the data and filter the names based on currentId
   const fetchDesignLink = async () => {
@@ -120,6 +120,7 @@ export const mapOrderStateToParams = (state: IOrderState) => {
   // Fetch the design link and update the 'Design' part
   fetchDesignLink().then(designLink => {
     // Update the Design link after fetching the data
+    console.log(designLink);
     orderData[4].subparameters[0].link = designLink;
 
     console.log("Updated Order Data:", orderData);
