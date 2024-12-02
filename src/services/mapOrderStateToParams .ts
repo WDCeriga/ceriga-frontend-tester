@@ -2,40 +2,44 @@
 import { IOrderState } from "@interfaces/bll/order.interface";
 import { IParamPreviewOrder } from "@interfaces/order/paramsPreview.interface";
 
-// Async function to fetch the design link
-const fetchDesignLink = async (currentId: string): Promise<string> => {
-  try {
-    // Fetch the design data from the API
-    const response = await fetch('https://storage.googleapis.com/storage/v1/b/ceriga-storage-bucket/o/');
-    const responseData = await response.json();
+// Function to fetch the design link
+const fetchDesignLink = (currentId: string): Promise<string> => {
+  return fetch('https://storage.googleapis.com/storage/v1/b/ceriga-storage-bucket/o/')
+    .then((response) => response.json())
+    .then((responseData) => {
+      if (Array.isArray(responseData.items)) {
+        const names = responseData.items.map((item) => item.name);
+        const filteredNames = names.filter((name) =>
+          name.includes(`${currentId}/designUploads`)
+        );
 
-    // Ensure responseData.items is an array
-    if (Array.isArray(responseData.items)) {
-      const names = responseData.items.map(item => item.name);
-      const filteredNames = names.filter(name => name.includes(`${currentId}/designUploads`));
+        console.log("Filtered Names:", filteredNames);
 
-      // Log the filtered names to the console for debugging
-      console.log("Filtered Names:", filteredNames);
-
-      // Return the first matching design link or an empty string
-      return filteredNames.length > 0 ? `https://storage.googleapis.com/ceriga-storage-bucket/${filteredNames[0]}` : '';
-    } else {
-      console.error('Items is not an array:', responseData.items);
-      return ''; // Return an empty string if items is not an array
-    }
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    return ''; // Return an empty string if there's a fetch error
-  }
+        return filteredNames.length > 0
+          ? `https://storage.googleapis.com/ceriga-storage-bucket/${filteredNames[0]}`
+          : '';
+      } else {
+        console.error('Items is not an array:', responseData.items);
+        return ''; // Return an empty string if items is not an array
+      }
+    })
+    .catch((error) => {
+      console.error('Error fetching data:', error);
+      return ''; // Return an empty string if there's a fetch error
+    });
 };
 
 // Function to map order state to parameters
-export const mapOrderStateToParams = async (state: IOrderState) => {
+export const mapOrderStateToParams = (state: IOrderState) => {
   const currentId = state.draftId ?? state._id;
   console.log(currentId);
 
-  // Fetch the design link asynchronously
-  const designLink = await fetchDesignLink(currentId);
+  // Fetch the design link
+  let designLink = '';
+  fetchDesignLink(currentId).then((link) => {
+    designLink = link;
+    console.log("DesignLink:", designLink);
+  });
 
   // Define the data structure to be returned
   const data: IParamPreviewOrder[] = [
